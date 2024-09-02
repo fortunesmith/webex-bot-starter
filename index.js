@@ -18,6 +18,7 @@ const commandList = `
 - **check room status**: Checks the occupancy status of the Room Kit Mini in VENUS ROOM.
 - **check people count**: Checks the number of people in VENUS ROOM.
 - **check bookings**: Checks the bookings for the room
+- **check noise and sound**: Checks the ambient noise and sound level in VENUS ROOM
 - **card me**: A customizable card with your personal details.
 - **reply**: Sends a threaded reply to your message.
 - **framework**: Learn more about the Webex Bot Framework.
@@ -114,7 +115,9 @@ async function sendCommandToRoomKit() {
     // To Check Room Analytics 
     const roomInUse = roomAnalytics.RoomInUse === 'True' ? 'Occupied' : 'Available';
     const peopleCount = roomAnalytics.PeopleCount ? roomAnalytics.PeopleCount.Current : 0;
-    
+    const ambientNoise = roomAnalytics.AmbientNoise && roomAnalytics.AmbientNoise.Level ? roomAnalytics.AmbientNoise.Level.A : 0;
+    const soundLevel = roomAnalytics.Sound && roomAnalytics.Sound.Level ? roomAnalytics.Sound.Level.A : 0;
+
     // To Check Bookings
     const availabilityStatus = bookings.Availability ? bookings.Availability.Status : 'Unknown';
     const availabilityTimeStamp = bookings.Availability ? bookings.Availability.TimeStamp :" ";
@@ -125,6 +128,8 @@ async function sendCommandToRoomKit() {
       peopleCount: peopleCount,
       availabilityStatus: availabilityStatus,
       availabilityTimeStamp,
+      ambientNoise: ambientNoise,
+      soundLevel: soundLevel,
     };
   } catch (error) {
     console.error("Error fetching room status:", error);
@@ -193,7 +198,7 @@ frameworkInstance.hears(
 
       const bookingChecker = state.availabilityStatus === "BookedUntil" ? new Date(state.availabilityTimeStamp).toLocaleString() : "not currently booked.";
       
-      const responseMessage = `The room is ${state.availabilityStatus} until ${bookingChecker}`;
+      const responseMessage = `The room is ${state.availabilityStatus} -> ${bookingChecker}`;
       await bot.say("markdown", responseMessage);
     } catch (error) {
       await bot.say("markdown", "Sorry, I couldn't check the bookings due to an error.");
@@ -203,6 +208,22 @@ frameworkInstance.hears(
   0
 );
 
+// Webex bot hears "check ambient noise and sound level in the room"
+frameworkInstance.hears(
+  "check noise and sound",
+  async (bot) => {
+    console.log("Noise and sound level check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+      const responseMessage = `The ambient noise level in the room is ${state.ambientNoise} and the sound level is ${state.soundLevel}.`;
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check the ambient noise and sound level in the room due to an error.");
+    }
+  },
+  "**check noise and sound **: (checks the ambient noise and sound level in the room)",
+  0
+);
 frameworkInstance.hears(
   "framework",
   (bot) => {

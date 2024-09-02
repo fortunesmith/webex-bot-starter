@@ -72,11 +72,11 @@ const parsedData = {
     },
     "Bookings": {
       "Availability": {
-        "Status": "BookedUntil",
-        "TimeStamp": "2024-09-02T10:30:00Z"
+        "Status": "Free",
+        "TimeStamp": ""
       },
       "Current": {
-        "Id": "webex-2"
+        "Id": ""
       }
     },
     "Cameras": {
@@ -333,10 +333,21 @@ const parsedData = {
       "ConnectedDevice": [
         {
           "HardwareInfo": "SCF",
-          "ID": "byod-20",
+          "ID": "byod-48",
           "Location": "NotSet",
           "Name": "",
-          "NetworkAddress": "192.168.10.161",
+          "NetworkAddress": "192.168.10.185",
+          "SoftwareInfo": 8,
+          "Status": "Connected",
+          "Type": "Byod",
+          "UpgradeStatus": "None"
+        },
+        {
+          "HardwareInfo": "SCF",
+          "ID": "byod-45",
+          "Location": "NotSet",
+          "Name": "",
+          "NetworkAddress": "192.168.10.108",
           "SoftwareInfo": 8,
           "Status": "Connected",
           "Type": "Byod",
@@ -390,7 +401,7 @@ const parsedData = {
       }
     },
     "Proximity": {
-      "PairingCount": 1,
+      "PairingCount": 2,
       "Services": {
         "Availability": "Available"
       }
@@ -404,7 +415,7 @@ const parsedData = {
     "RoomAnalytics": {
       "AmbientNoise": {
         "Level": {
-          "A": 39
+          "A": 40
         }
       },
       "Engagement": {
@@ -412,11 +423,11 @@ const parsedData = {
       },
       "PeopleCount": {
         "Capacity": 10,
-        "Current": 1
+        "Current": 4
       },
       "PeoplePresence": "Yes",
       "ReverberationTime": {
-        "LastRun": "2024-09-02T09:56:16Z",
+        "LastRun": "2024-09-02T12:26:16Z",
         "Middle": {
           "RT60": 0
         },
@@ -450,13 +461,13 @@ const parsedData = {
       "RoomInUse": "True",
       "Sound": {
         "Level": {
-          "A": 49
+          "A": 45
         }
       },
       "T3Alarm": {
         "Detected": "False"
       },
-      "UltrasoundPresence": "Yes"
+      "UltrasoundPresence": "No"
     },
     "RoomPreset": [
       {
@@ -610,14 +621,14 @@ const parsedData = {
         },
         "System": "Initialized"
       },
-      "Uptime": 26324
+      "Uptime": 35248
     },
     "ThousandEyes": {
       "Status": "Unregistered",
       "Version": "1.198.0"
     },
     "Time": {
-      "SystemTime": "2024-09-02T15:43:45+0530"
+      "SystemTime": "2024-09-02T18:12:29+0530"
     },
     "UserInterface": {
       "Branding": {
@@ -878,6 +889,7 @@ const parsedData = {
       },
       "Input": {
         "AirPlay": {
+          "Activity": "Idle",
           "Status": "Active"
         },
         "Connector": [
@@ -929,7 +941,22 @@ const parsedData = {
       },
       "Layout": {
         "CurrentLayouts": {
-          "ActiveLayout": "Grid"
+          "ActiveLayout": "Grid",
+          "AvailableLayouts": [
+            {
+              "LayoutName": "Grid"
+            },
+            {
+              "LayoutName": "Stack"
+            },
+            {
+              "LayoutName": "Prominent"
+            },
+            {
+              "LayoutName": "Focus"
+            }
+          ],
+          "DefaultLayout": "Grid"
         },
         "LayoutFamily": {
           "Local": "equal"
@@ -1016,7 +1043,7 @@ const parsedData = {
       },
       "Services": {
         "Proximity": {
-          "GuestToken": "S5P-CTL-DXS"
+          "GuestToken": "3XP-DD8-W75"
         }
       },
       "Status": "Registered"
