@@ -1,15 +1,40 @@
 //Webex Bot Starter - featuring the webex-node-bot-framework - https://www.npmjs.com/package/webex-node-bot-framework
-require("dotenv").config();
-var framework = require("webex-node-bot-framework");
-var webhook = require("webex-node-bot-framework/webhook");
-var express = require("express");
-var bodyParser = require("body-parser");
-var app = express();
-app.use(bodyParser.json());
+const dotenv = require('dotenv');
+const express = require('express');
+const axios = require('axios');
+const https = require('https');
+const fs = require('fs'); 
+const {XMLParser}=require('fast-xml-parser');
+const framework = require("webex-node-bot-framework");
+const webhook = require("webex-node-bot-framework/webhook");
+
+dotenv.config();
+
+const commandList = `
+**Available Commands:**
+- **say hi to everyone**: Sends a greeting to all members in the space.
+- **info**: Get your personal details.
+- **space**: Get details about this space.
+- **check room status**: Checks the occupancy status of the Room Kit Mini in VENUS ROOM.
+- **check people count**: Checks the number of people in VENUS ROOM.
+- **check bookings**: Checks the bookings for the room
+- **card me**: A customizable card with your personal details.
+- **reply**: Sends a threaded reply to your message.
+- **framework**: Learn more about the Webex Bot Framework.
+- **help**: Shows this help message.
+`;
+
+// Create an HTTPS agent that ignores self-signed certificates
+const agent = new https.Agent({  
+  rejectUnauthorized: false
+});
+
+const app = express();
+app.use(express.json());
 app.use(express.static("images"));
 
 const config = {
-  token: process.env.BOTTOKEN,
+  token: process.env.WEBEX_BOT_TOKEN,
 };
 
 // Only pass the webhook URL and port if it has been set in the environment
@@ -17,77 +42,168 @@ if (process.env.WEBHOOKURL && process.env.PORT) {
   config.webhookUrl = process.env.WEBHOOKURL;
   config.port = process.env.PORT;
 }
-
-
-// init framework
-var framework = new framework(config);
-framework.start();
+// Initialize Webex bot framework
+const frameworkInstance = new framework(config);
+frameworkInstance.start();
 console.log("Starting framework, please wait...");
 
-framework.on("initialized", () => {
+frameworkInstance.on("initialized", () => {
   console.log("framework is all fired up! [Press CTRL-C to quit]");
 });
 
-// A spawn event is generated when the framework finds a space with your bot in it
-// If actorId is set, it means that user has just added your bot to a new space
-// If not, the framework has discovered your bot in an existing space
-framework.on("spawn", (bot, id, actorId) => {
-  if (!actorId) {
-    // don't say anything here or your bot's spaces will get
-    // spammed every time your server is restarted
-    console.log(
-      `While starting up, the framework found our bot in a space called: ${bot.room.title}`
-    );
-  } else {
-    // When actorId is present it means someone added your bot got added to a new space
-    // Lets find out more about them..
-    var msg =
-      "You can say `help` to get the list of words I am able to respond to.";
-    bot.webex.people
-      .get(actorId)
-      .then((user) => {
-        msg = `Hello there ${user.displayName}. ${msg}`;
-      })
-      .catch((e) => {
-        console.error(
-          `Failed to lookup user details in framwork.on("spawn"): ${e.message}`
-        );
-        msg = `Hello there. ${msg}`;
-      })
-      .finally(() => {
-        // Say hello, and tell users what you do!
-        if (bot.isDirect) {
-          bot.say("markdown", msg);
-        } else {
-          let botName = bot.person.displayName;
-          msg += `\n\nDon't forget, in order for me to see your messages in this group space, be sure to *@mention* ${botName}.`;
-          bot.say("markdown", msg);
-        }
-      });
+// Function to send a command to the Room Kit Mini
+async function updateParsedData() {
+  try {
+    const url = `https://192.168.10.167/status.xml`;
+
+    const response = await axios.get(url, {
+      auth: {
+        username: 'Test123',
+        password: 'admin@123',
+      },
+      headers: {
+        'Content-Type': 'text/xml',
+      },
+      httpsAgent: agent 
+    });
+
+    // Log response headers and body
+    console.log("Response Headers:", response.headers);
+    console.log("Response Body:", response.data);
+
+    // Check if the response is actually XML
+    if (response.headers['content-type'] && response.headers['content-type'].includes('xml')) {
+      console.log("Connection to Room Bar Mini has been established.");
+
+      // Parse XML response
+      const xmlData = response.data;
+      const parser = new XMLParser();
+      const jsonObj = parser.parse(xmlData);
+
+      const jsonString = JSON.stringify(jsonObj, null, 2);
+
+      fs.writeFileSync('parsed-data.js', `const parsedData = ${jsonString};\n\nmodule.exports = parsedData;`);
+
+      console.log('Parsed data has been updated in parsed-data.js');
+    } else {
+      throw new Error("Expected XML response but received different content.");
+    }
+  } catch (error) {
+    console.error("Error updating room status:", error);
+  }
+}
+
+// Update parsed-data.js every second
+setInterval(updateParsedData, 15000);
+
+// Function to send a command to the Room Kit Mini
+async function sendCommandToRoomKit() {
+  try {
+    const parsedData = require('./parsed-data');
+    console.log("Parsed Data:", parsedData);
+
+    // Check if parsedData contains the expected structure
+    if (parsedData.html) {
+      throw new Error('Unexpected HTML content in parsed data');
+    }
+
+    const status = parsedData.Status || {};
+    const bookings = status.Bookings || {};
+    const roomAnalytics = status.RoomAnalytics || {};
+
+    // To Check Room Analytics 
+    const roomInUse = roomAnalytics.RoomInUse === 'True' ? 'Occupied' : 'Available';
+    const peopleCount = roomAnalytics.PeopleCount ? roomAnalytics.PeopleCount.Current : 0;
+    
+    // To Check Bookings
+    const availabilityStatus = bookings.Availability ? bookings.Availability.Status : 'Unknown';
+    const availabilityTimeStamp = bookings.Availability ? bookings.Availability.TimeStamp :" ";
+
+    console.log('Room status:', parsedData);
+    return {
+      roomStatus: roomInUse,
+      peopleCount: peopleCount,
+      availabilityStatus: availabilityStatus,
+      availabilityTimeStamp,
+    };
+  } catch (error) {
+    console.error("Error fetching room status:", error);
+    throw error; // Re-throw to be handled by the caller
+  }
+}
+
+frameworkInstance.on('spawn', (bot, id, addedBy) => {
+  if (!addedBy) {
+    // The bot was added to a space without a specific user doing so (like in a group space)
+    console.log('Bot was added to a space');
+    bot.say('markdown', commandList).catch((e) => console.error(`Error in spawn handler: ${e.message}`));
   }
 });
 
-// Implementing a framework.on('log') handler allows you to capture
-// events emitted from the framework.  Its a handy way to better understand
-// what the framework is doing when first getting started, and a great
-// way to troubleshoot issues.
-// You may wish to disable this for production apps
-framework.on("log", (msg) => {
-  console.log(msg);
-});
+// Webex bot hears "check room status" command
+frameworkInstance.hears(
+  "check room status",
+  async (bot) => {
+    console.log("Room status check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+      let responseMessage = '';
 
-// Process incoming messages
-// Each hears() call includes the phrase to match, and the function to call if webex mesages
-// to the bot match that phrase.
-// An optional 3rd parameter can be a help string used by the frameworks.showHelp message.
-// An optional fourth (or 3rd param if no help message is supplied) is an integer that
-// specifies priority.   If multiple handlers match they will all be called unless the priority
-// was specified, in which case, only the handler(s) with the lowest priority will be called
+      if (state.roomStatus === 'Occupied') {
+        responseMessage = 'The room is not available.';
+      } else {
+        responseMessage = 'The room is available.';
+        if (state.peopleCount > 0) {
+          responseMessage += ` However, there are ${state.peopleCount} people in the room.`;
+        }
+      }
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check the room status due to an error.");
+    }
+  },
+  "**check room status**: (checks the occupancy status of the Room Kit)",
+  0
+);
 
-/* On mention with command
-ex User enters @botname framework, the bot will write back in markdown
-*/
-framework.hears(
+// Webex bot hears "check people count" command
+frameworkInstance.hears(
+  "check people count",
+  async (bot) => {
+    console.log("People count check requested");
+    try {
+      const state  = await sendCommandToRoomKit();
+      const responseMessage = `There are ${state .peopleCount} people in the room.`;
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check the number of people in the room due to an error.");
+    }
+  },
+  "**check people count**: (checks the number of people in the room)",
+  0
+);
+
+// Webex bot hears "check bookings" command
+frameworkInstance.hears(
+  "check bookings",
+  async (bot) => {
+    console.log("Bookings check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+
+      const bookingChecker = state.availabilityStatus === "BookedUntil" ? new Date(state.availabilityTimeStamp).toLocaleString() : "not currently booked.";
+      
+      const responseMessage = `The room is ${state.availabilityStatus} until ${bookingChecker}`;
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check the bookings due to an error.");
+    }
+  },
+  "**check bookings**: (checks the bookings for the room)",
+  0
+);
+
+frameworkInstance.hears(
   "framework",
   (bot) => {
     console.log("framework command received");
@@ -103,7 +219,7 @@ framework.hears(
 /* On mention with command, using other trigger data, can use lite markdown formatting
 ex User enters @botname 'info' phrase, the bot will provide personal details
 */
-framework.hears(
+frameworkInstance.hears(
   "info",
   (bot, trigger) => {
     console.log("info command received");
@@ -121,7 +237,7 @@ framework.hears(
 /* On mention with bot data
 ex User enters @botname 'space' phrase, the bot will provide details about that particular space
 */
-framework.hears(
+frameworkInstance.hears(
   "space",
   (bot) => {
     console.log("space. the final frontier");
@@ -145,7 +261,7 @@ framework.hears(
    This demonstrates how developers can access the webex
    sdk to call any Webex API.  API Doc: https://webex.github.io/webex-js-sdk/api/
 */
-framework.hears(
+frameworkInstance.hears(
   "say hi to everyone",
   (bot) => {
     console.log("say hi to everyone.  Its a party");
@@ -218,7 +334,7 @@ let cardJSON = {
 /* On mention with card example
 ex User enters @botname 'card me' phrase, the bot will produce a personalized card - https://developer.webex.com/docs/api/guides/cards
 */
-framework.hears(
+frameworkInstance.hears(
   "card me",
   (bot, trigger) => {
     console.log("someone asked for a card");
@@ -241,7 +357,7 @@ framework.hears(
 /* On mention reply example
 ex User enters @botname 'reply' phrase, the bot will post a threaded reply
 */
-framework.hears(
+frameworkInstance.hears(
   "reply",
   (bot, trigger) => {
     console.log("someone asked for a reply.  We will give them two.");
@@ -266,14 +382,13 @@ ex User enters @botname help, the bot will write back in markdown
  * The framework.showHelp method will use the help phrases supplied with the previous
  * framework.hears() commands
 */
-framework.hears(
-  /help|what can i (do|say)|what (can|do) you do/i,
+frameworkInstance.hears(
+  /hello|hi|help|what can i (do|say)|what (can|do) you do/i,
   (bot, trigger) => {
     console.log(`someone needs help! They asked ${trigger.text}`);
     bot
       .say(`Hello ${trigger.person.displayName}.`)
-      //    .then(() => sendHelp(bot))
-      .then(() => bot.say("markdown", framework.showHelp()))
+      .then(() => bot.say("markdown", commandList))
       .catch((e) => console.error(`Problem in help hander: ${e.message}`));
   },
   "**help**: (what you are reading now)",
@@ -285,7 +400,7 @@ framework.hears(
    Setting the priority to a higher number here ensures that other
    handlers with lower priority will be called instead if there is another match
 */
-framework.hears(
+frameworkInstance.hears(
   /.*/,
   (bot, trigger) => {
     // This will fire for any input so only respond if we haven't already
@@ -293,31 +408,36 @@ framework.hears(
     bot
       .say(`Sorry, I don't know how to respond to "${trigger.text}"`)
       .then(() => bot.say("markdown", framework.showHelp()))
-      //    .then(() => sendHelp(bot))
       .catch((e) =>
-        console.error(`Problem in the unexepected command hander: ${e.message}`)
+        console.error(`Problem in the unexpected command handler: ${e.message}`)
       );
   },
   99999
 );
 
-//Server config & housekeeping
+// Server config & housekeeping
 // Health Check
 app.get("/", (req, res) => {
   res.send(`I'm alive.`);
 });
 
-app.post("/", webhook(framework));
+app.post("/", webhook(frameworkInstance));
 
 var server = app.listen(config.port, () => {
-  framework.debug("framework listening on port %s", config.port);
+  frameworkInstance.debug("framework listening on port %s", config.port);
 });
 
 // gracefully shutdown (ctrl-c)
 process.on("SIGINT", () => {
-  framework.debug("stopping...");
-  server.close();
-  framework.stop().then(() => {
-    process.exit();
+  console.log("Stopping server...");
+  server.close(() => {
+    console.log("Server stopped.");
+    frameworkInstance.stop().then(() => {
+      console.log("Framework stopped.");
+      process.exit(0);
+    }).catch(err => {
+      console.error("Error stopping framework:", err);
+      process.exit(1);
+    });
   });
 });
