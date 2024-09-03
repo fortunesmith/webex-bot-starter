@@ -9,6 +9,8 @@ const framework = require("webex-node-bot-framework");
 const webhook = require("webex-node-bot-framework/webhook");
 
 dotenv.config();
+const today = new Date();
+const formattedDate = today.getDate().toString().padStart(2, '0') + '/' + (today.getMonth() + 1).toString().padStart(2, '0') + '/' + today.getFullYear();
 
 const commandList = `
 **Available Commands:**
@@ -16,8 +18,8 @@ const commandList = `
 - **info**: Get your personal details.
 - **space**: Get details about this space.
 - **check room status**: Checks the occupancy status of the Room Kit Mini in VENUS ROOM.
-- **check people count**: Checks the number of people in VENUS ROOM.
-- **check bookings**: Checks the bookings for the room
+- **check people count**: Checks the number of people in VENUS room.
+- **check bookings**: Checks the bookings of VENUS room for (${formattedDate})
 - **check noise and sound**: Checks the ambient noise and sound level in VENUS ROOM
 - **card me**: A customizable card with your personal details.
 - **reply**: Sends a threaded reply to your message.
@@ -119,7 +121,7 @@ async function sendCommandToRoomKit() {
     const soundLevel = roomAnalytics.Sound && roomAnalytics.Sound.Level ? roomAnalytics.Sound.Level.A : 0;
 
     // To Check Bookings
-    const availabilityStatus = bookings.Availability ? bookings.Availability.Status : 'Unknown';
+    const availabilityStatus = bookings.Availability ? bookings.Availability.Status : 'BookedUntil';
     const availabilityTimeStamp = bookings.Availability ? bookings.Availability.TimeStamp :" ";
 
     console.log('Room status:', parsedData);
@@ -127,7 +129,7 @@ async function sendCommandToRoomKit() {
       roomStatus: roomInUse,
       peopleCount: peopleCount,
       availabilityStatus: availabilityStatus,
-      availabilityTimeStamp,
+      availabilityTimeStamp: availabilityTimeStamp,
       ambientNoise: ambientNoise,
       soundLevel: soundLevel,
     };
@@ -196,10 +198,15 @@ frameworkInstance.hears(
     try {
       const state = await sendCommandToRoomKit();
 
-      const bookingChecker = state.availabilityStatus === "BookedUntil" ? new Date(state.availabilityTimeStamp).toLocaleString() : "not currently booked.";
-      
-      const responseMessage = `The room is ${state.availabilityStatus} -> ${bookingChecker}`;
-      await bot.say("markdown", responseMessage);
+      let responseMessage = '';
+      if (state.availabilityStatus === "BookedUntil") {
+        // If the room is booked, show the timestamp until when it is booked
+        const bookingEndTime = new Date(state.availabilityTimeStamp).toLocaleString();
+        responseMessage = `The room is booked until ${bookingEndTime}.`;
+      } else {
+        // If the room is not booked, indicate it's free
+        responseMessage = `The room is currently free ${formattedDate}.`;
+      }await bot.say("markdown", responseMessage);
     } catch (error) {
       await bot.say("markdown", "Sorry, I couldn't check the bookings due to an error.");
     }
@@ -215,7 +222,7 @@ frameworkInstance.hears(
     console.log("Noise and sound level check requested");
     try {
       const state = await sendCommandToRoomKit();
-      const responseMessage = `The ambient noise level in the room is ${state.ambientNoise} and the sound level is ${state.soundLevel}.`;
+      const responseMessage = `The ambient noise level in the room is ${state.ambientNoise} dB and the sound level is ${state.soundLevel} dB.`;
       await bot.say("markdown", responseMessage);
     } catch (error) {
       await bot.say("markdown", "Sorry, I couldn't check the ambient noise and sound level in the room due to an error.");

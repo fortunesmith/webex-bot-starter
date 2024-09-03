@@ -72,11 +72,11 @@ const parsedData = {
     },
     "Bookings": {
       "Availability": {
-        "Status": "Free",
-        "TimeStamp": ""
+        "Status": "BookedUntil",
+        "TimeStamp": "2024-09-03T11:00:00Z"
       },
       "Current": {
-        "Id": ""
+        "Id": "webex-1"
       }
     },
     "Cameras": {
@@ -139,12 +139,12 @@ const parsedData = {
           "CertificateChain": {
             "Certificate": [
               {
-                "Fingerprint": "db77d2806e37bc1d3ecbcf03dfa5ad2145248424",
-                "NotAfter": "2024-09-09T03:00:37.000000000+0000",
-                "NotBefore": "2024-09-02T02:59:37.000000000+0000",
+                "Fingerprint": "f0a8318fb51132301b3b1a42cd0f6e20f1a68e5b",
+                "NotAfter": "2024-09-10T02:26:57.000000000+0000",
+                "NotBefore": "2024-09-03T02:25:57.000000000+0000",
                 "PrimaryName": "agilustech.in",
                 "PublicKeyAlgorithm": "ECDSA P256 SHA-256",
-                "SerialNumber": "0132AE90AA93686DC3",
+                "SerialNumber": "01E1E469FD31EB58C3",
                 "SignatureAlgorithm": "ECDSA P256 SHA-256",
                 "Subject": [
                   {
@@ -330,42 +330,18 @@ const parsedData = {
       }
     },
     "Peripherals": {
-      "ConnectedDevice": [
-        {
-          "HardwareInfo": "SCF",
-          "ID": "byod-48",
-          "Location": "NotSet",
-          "Name": "",
-          "NetworkAddress": "192.168.10.185",
-          "SoftwareInfo": 8,
-          "Status": "Connected",
-          "Type": "Byod",
-          "UpgradeStatus": "None"
-        },
-        {
-          "HardwareInfo": "SCF",
-          "ID": "byod-45",
-          "Location": "NotSet",
-          "Name": "",
-          "NetworkAddress": "192.168.10.108",
-          "SoftwareInfo": 8,
-          "Status": "Connected",
-          "Type": "Byod",
-          "UpgradeStatus": "None"
-        },
-        {
-          "HardwareInfo": "101282-0",
-          "ID": "d4:e8:80:c8:a7:50",
-          "Location": "NotSet",
-          "Name": "Cisco TelePresence Touch",
-          "NetworkAddress": "169.254.1.44",
-          "SerialNumber": "FOC2311NATM",
-          "SoftwareInfo": "ce11.19.1.7.3055d561c16",
-          "Status": "Connected",
-          "Type": "TouchPanel",
-          "UpgradeStatus": "None"
-        }
-      ],
+      "ConnectedDevice": {
+        "HardwareInfo": "101282-0",
+        "ID": "d4:e8:80:c8:a7:50",
+        "Location": "NotSet",
+        "Name": "Cisco TelePresence Touch",
+        "NetworkAddress": "169.254.1.44",
+        "SerialNumber": "FOC2311NATM",
+        "SoftwareInfo": "ce11.19.1.7.3055d561c16",
+        "Status": "Connected",
+        "Type": "TouchPanel",
+        "UpgradeStatus": "None"
+      },
       "PinPairing": {
         "TimeRemaining": 0
       }
@@ -380,7 +356,7 @@ const parsedData = {
       "Server": "",
       "Software": {
         "Current": {
-          "CompletedAt": "2024-09-02T03:00:39Z",
+          "CompletedAt": "2024-09-03T02:26:58Z",
           "URL": "",
           "VersionId": "ce11.19.1.7 3055d561c16 2024-08-05"
         },
@@ -401,7 +377,7 @@ const parsedData = {
       }
     },
     "Proximity": {
-      "PairingCount": 2,
+      "PairingCount": 0,
       "Services": {
         "Availability": "Available"
       }
@@ -415,7 +391,7 @@ const parsedData = {
     "RoomAnalytics": {
       "AmbientNoise": {
         "Level": {
-          "A": 40
+          "A": 33
         }
       },
       "Engagement": {
@@ -423,11 +399,11 @@ const parsedData = {
       },
       "PeopleCount": {
         "Capacity": 10,
-        "Current": 4
+        "Current": 2
       },
       "PeoplePresence": "Yes",
       "ReverberationTime": {
-        "LastRun": "2024-09-02T12:26:16Z",
+        "LastRun": "2024-09-03T10:22:37Z",
         "Middle": {
           "RT60": 0
         },
@@ -461,13 +437,13 @@ const parsedData = {
       "RoomInUse": "True",
       "Sound": {
         "Level": {
-          "A": 45
+          "A": 42
         }
       },
       "T3Alarm": {
         "Detected": "False"
       },
-      "UltrasoundPresence": "No"
+      "UltrasoundPresence": "Yes"
     },
     "RoomPreset": [
       {
@@ -621,14 +597,14 @@ const parsedData = {
         },
         "System": "Initialized"
       },
-      "Uptime": 35248
+      "Uptime": 29382
     },
     "ThousandEyes": {
       "Status": "Unregistered",
       "Version": "1.198.0"
     },
     "Time": {
-      "SystemTime": "2024-09-02T18:12:29+0530"
+      "SystemTime": "2024-09-03T16:01:04+0530"
     },
     "UserInterface": {
       "Branding": {
@@ -889,7 +865,6 @@ const parsedData = {
       },
       "Input": {
         "AirPlay": {
-          "Activity": "Idle",
           "Status": "Active"
         },
         "Connector": [
@@ -909,10 +884,9 @@ const parsedData = {
         "MainVideoMute": "Off",
         "MainVideoSource": 1,
         "Miracast": {
-          "Channel": 11,
+          "Channel": 1,
           "PinAttemptsLeft": 10,
-          "Status": "Started",
-          "Transport": "None"
+          "Status": "Started"
         },
         "Source": [
           {
@@ -1043,7 +1017,7 @@ const parsedData = {
       },
       "Services": {
         "Proximity": {
-          "GuestToken": "3XP-DD8-W75"
+          "GuestToken": "JPF-MZA-ZG6"
         }
       },
       "Status": "Registered"
