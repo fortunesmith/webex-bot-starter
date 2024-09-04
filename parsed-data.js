@@ -38,7 +38,7 @@ const parsedData = {
       "Output": {
         "Connectors": {
           "HDMI": {
-            "Mode": "DelayMeasurement"
+            "Mode": "Off"
           },
           "InternalSpeaker": {
             "DelayMs": 0
@@ -64,19 +64,19 @@ const parsedData = {
       "Ultrasound": {
         "Volume": 70
       },
-      "Volume": 50,
+      "Volume": 100,
       "VolumeHandsetUsb": 50,
       "VolumeHeadsetUsb": 50,
-      "VolumeInternal": 50,
+      "VolumeInternal": 100,
       "VolumeMute": "Off"
     },
     "Bookings": {
       "Availability": {
-        "Status": "BookedUntil",
-        "TimeStamp": "2024-09-03T11:00:00Z"
+        "Status": "FreeUntil",
+        "TimeStamp": "2024-09-05T08:30:00Z"
       },
       "Current": {
-        "Id": "webex-1"
+        "Id": ""
       }
     },
     "Cameras": {
@@ -89,7 +89,7 @@ const parsedData = {
         "Lenses": {
           "Lens": "Wide"
         },
-        "LightingConditions": "Backlight",
+        "LightingConditions": "Unknown",
         "Manufacturer": "Cisco",
         "Model": "Integrated Camera",
         "Position": {
@@ -108,7 +108,7 @@ const parsedData = {
           "Availability": "Available",
           "Status": "Inactive"
         },
-        "State": "BestOverview",
+        "State": "Off",
         "Status": "Active",
         "ViewLimits": {
           "Pan": 0,
@@ -139,12 +139,12 @@ const parsedData = {
           "CertificateChain": {
             "Certificate": [
               {
-                "Fingerprint": "f0a8318fb51132301b3b1a42cd0f6e20f1a68e5b",
-                "NotAfter": "2024-09-10T02:26:57.000000000+0000",
-                "NotBefore": "2024-09-03T02:25:57.000000000+0000",
+                "Fingerprint": "c1a08b6270a43a2c3d8cc4256f53a129232cbc9d",
+                "NotAfter": "2024-09-11T02:28:52.000000000+0000",
+                "NotBefore": "2024-09-04T02:27:52.000000000+0000",
                 "PrimaryName": "agilustech.in",
                 "PublicKeyAlgorithm": "ECDSA P256 SHA-256",
-                "SerialNumber": "01E1E469FD31EB58C3",
+                "SerialNumber": "017B1FA38D1CA56637",
                 "SignatureAlgorithm": "ECDSA P256 SHA-256",
                 "Subject": [
                   {
@@ -356,7 +356,7 @@ const parsedData = {
       "Server": "",
       "Software": {
         "Current": {
-          "CompletedAt": "2024-09-03T02:26:58Z",
+          "CompletedAt": "2024-09-04T02:28:54Z",
           "URL": "",
           "VersionId": "ce11.19.1.7 3055d561c16 2024-08-05"
         },
@@ -391,7 +391,7 @@ const parsedData = {
     "RoomAnalytics": {
       "AmbientNoise": {
         "Level": {
-          "A": 33
+          "A": 34
         }
       },
       "Engagement": {
@@ -399,51 +399,51 @@ const parsedData = {
       },
       "PeopleCount": {
         "Capacity": 10,
-        "Current": 2
+        "Current": 0
       },
-      "PeoplePresence": "Yes",
+      "PeoplePresence": "No",
       "ReverberationTime": {
-        "LastRun": "2024-09-03T10:22:37Z",
+        "LastRun": "2024-09-04T11:54:32Z",
         "Middle": {
-          "RT60": 0
+          "RT60": 350
         },
         "Octaves": [
           {
             "CenterFrequency": 125,
-            "RT60": 0
+            "RT60": 750
           },
           {
             "CenterFrequency": 250,
-            "RT60": 0
+            "RT60": 520
           },
           {
             "CenterFrequency": 500,
-            "RT60": 0
+            "RT60": 370
           },
           {
             "CenterFrequency": 1000,
-            "RT60": 0
+            "RT60": 330
           },
           {
             "CenterFrequency": 2000,
-            "RT60": 0
+            "RT60": 320
           },
           {
             "CenterFrequency": 4000,
-            "RT60": 0
+            "RT60": 450
           }
         ]
       },
-      "RoomInUse": "True",
+      "RoomInUse": "False",
       "Sound": {
         "Level": {
-          "A": 42
+          "A": 35
         }
       },
       "T3Alarm": {
         "Detected": "False"
       },
-      "UltrasoundPresence": "Yes"
+      "UltrasoundPresence": "No"
     },
     "RoomPreset": [
       {
@@ -546,7 +546,7 @@ const parsedData = {
       "Verified": "False"
     },
     "Standby": {
-      "State": "Off"
+      "State": "Standby"
     },
     "SystemUnit": {
       "BroadcastName": "VSPL-BLR-Venus",
@@ -597,14 +597,14 @@ const parsedData = {
         },
         "System": "Initialized"
       },
-      "Uptime": 29382
+      "Uptime": 34671
     },
     "ThousandEyes": {
       "Status": "Unregistered",
       "Version": "1.198.0"
     },
     "Time": {
-      "SystemTime": "2024-09-03T16:01:04+0530"
+      "SystemTime": "2024-09-04T17:31:07+0530"
     },
     "UserInterface": {
       "Branding": {
@@ -632,7 +632,7 @@ const parsedData = {
             "WidgetId": "Biscuit_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "Biscuit_text"
           },
           {
@@ -644,7 +644,7 @@ const parsedData = {
             "WidgetId": "blcoffee_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "blcoffee_text"
           },
           {
@@ -656,7 +656,7 @@ const parsedData = {
             "WidgetId": "blcoffeewo_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "blcoffeewo_text"
           },
           {
@@ -668,7 +668,7 @@ const parsedData = {
             "WidgetId": "bltea_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "bltea_text"
           },
           {
@@ -680,7 +680,7 @@ const parsedData = {
             "WidgetId": "blteawo_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "blteawo_text"
           },
           {
@@ -692,7 +692,7 @@ const parsedData = {
             "WidgetId": "coffee_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "coffee_text"
           },
           {
@@ -704,7 +704,7 @@ const parsedData = {
             "WidgetId": "coffeewo_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "coffeewo_text"
           },
           {
@@ -716,7 +716,7 @@ const parsedData = {
             "WidgetId": "greentea_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "greentea_text"
           },
           {
@@ -728,7 +728,7 @@ const parsedData = {
             "WidgetId": "greenteawo_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "greenteawo_text"
           },
           {
@@ -764,7 +764,7 @@ const parsedData = {
             "WidgetId": "tea_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "tea_text"
           },
           {
@@ -776,7 +776,7 @@ const parsedData = {
             "WidgetId": "teawo_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "teawo_text"
           },
           {
@@ -788,7 +788,7 @@ const parsedData = {
             "WidgetId": "waterbottle_incr"
           },
           {
-            "Value": "",
+            "Value": 0,
             "WidgetId": "waterbottle_text"
           },
           {
@@ -842,7 +842,7 @@ const parsedData = {
         }
       },
       "LedControl": {
-        "Color": "Red"
+        "Color": "Green"
       },
       "OSD": {
         "Output": 1
@@ -884,7 +884,7 @@ const parsedData = {
         "MainVideoMute": "Off",
         "MainVideoSource": 1,
         "Miracast": {
-          "Channel": 1,
+          "Channel": 11,
           "PinAttemptsLeft": 10,
           "Status": "Started"
         },
@@ -987,7 +987,7 @@ const parsedData = {
         "FullscreenMode": "Off",
         "Mode": "Off",
         "OnMonitorRole": "First",
-        "PIPPosition": "CenterRight"
+        "PIPPosition": "UpperLeft"
       }
     },
     "WebEngine": {
@@ -1017,7 +1017,7 @@ const parsedData = {
       },
       "Services": {
         "Proximity": {
-          "GuestToken": "JPF-MZA-ZG6"
+          "GuestToken": "JH2-H14-1DV"
         }
       },
       "Status": "Registered"
