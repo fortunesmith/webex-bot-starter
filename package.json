@@ -4,7 +4,7 @@
   "description": "Starter template for creating a Webex Teams bot",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",

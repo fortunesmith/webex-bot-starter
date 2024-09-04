@@ -193,8 +193,9 @@ async function sendCommandToRoomKit() {
     const softwareReleaseDate = systemUnit.Software.ReleaseDate;
 
     // To check Video Details
-    
+    // yet to implement these
 
+    
     // To Check WebRTC Provider Details
     const webRTCProvider = webRTCS.Provider;
     const googleMeet = webRTCProvider.GoogleMeet;
