@@ -17,10 +17,17 @@ const commandList = `
 - **say hi to everyone**: Sends a greeting to all members in the space.
 - **info**: Get your personal details.
 - **space**: Get details about this space.
+- **check diagnostics**: Checks the diagnostics of the Room Kit Mini.
 - **check room status**: Checks the occupancy status of the Room Kit Mini in VENUS ROOM.
 - **check people count**: Checks the number of people in VENUS room.
 - **check bookings**: Checks the bookings of VENUS room for (${formattedDate})
+- **check network details**: YET TO IMPLEMENT Checks the network details of Room Kit Mini
 - **check noise and sound**: Checks the ambient noise and sound level in VENUS ROOM
+- **check proximity services**: Checks the availability of proximity services in VENUS ROOM.
+- **check standby state**: Checks the standby state of the Room Kit Mini.
+- **check system unit details**: Checks the system unit details of the Room Kit Mini.
+- **check google meet**: Checks whether Google Meet is available or not.
+- **check microsoft teams**: Checks whether Microsoft Teams is available or not.
 - **card me**: A customizable card with your personal details.
 - **reply**: Sends a threaded reply to your message.
 - **framework**: Learn more about the Webex Bot Framework.
@@ -96,8 +103,8 @@ async function updateParsedData() {
   }
 }
 
-// Update parsed-data.js every second
-setInterval(updateParsedData, 15000);
+// Update parsed-data.js every 10 seconds
+setInterval(updateParsedData, 10000);
 
 // Function to send a command to the Room Kit Mini
 async function sendCommandToRoomKit() {
@@ -111,27 +118,110 @@ async function sendCommandToRoomKit() {
     }
 
     const status = parsedData.Status || {};
+
     const bookings = status.Bookings || {};
+    const diagnostics = status.Diagnostics || {};
+    //const network = status.Network || {};
+    const proximityServices =status.Proximity || {};
     const roomAnalytics = status.RoomAnalytics || {};
+    const standby = status.Standby || {};
+    const systemUnit = status.SystemUnit || {};
+    const webRTCS = status.WebRTC || {};
+    //const video = status.Video || {};
+
+
+    // To Check Bookings
+    const availabilityStatus = bookings.Availability ? bookings.Availability.Status : "BookedUntil";
+    const availabilityTimeStamp = bookings.Availability ? bookings.Availability.TimeStamp :" ";
+
+    // To Check Diagnostics
+    const diagnosticsMessages = [];
+    if (diagnostics.Message) {
+      const messages = Array.isArray(diagnostics.Message) ? diagnostics.Message : [diagnostics.Message];
+      messages.forEach(message => {
+        const description = message.Description;
+        const level = message.Level;
+        diagnosticsMessages.push(`**Description:** ${description}\n**Level:** ${level}`);
+      });
+    }
+
+    // // To Check Network Details
+    // const activeInterface = network.ActiveInterface[0] ;
+    // const cdp = network.CDP[0].Address[0];
+    // const dnsServerAddress = network.DNS[0].Server.map(server => server.Address[0]);
+    // const ethernet = {
+    //   macAddress: network.Ethernet[0].MacAddress[0],
+    //   speed: network.Ethernet[0].Speed[0],
+    // };;
+    // const ipV4 = {
+    //   address: network.IPv4[0].Address[0],
+    //   gateway: network.IPv4[0].Gateway[0],
+    //   subnetMask: network.IPv4[0].SubnetMask[0],
+    // };
+    // const ipV6 = {
+    //   address: network.IPv6[0].Address[0],
+    //   gateway: network.IPv6[0].Gateway[0],
+    //   linkLocalAddress: network.IPv6[0].LinkLocalAddress[0],
+    // };
+    // const wifi = {
+    //   ssid: network.Wifi[0].SSID[0],
+    //   speed: network.Wifi[0].Speed[0],
+    //   status: network.Wifi[0].Status[0],
+    // };
+
+    // To Check Proximity Services Availability
+    const services = proximityServices.Services ? proximityServices.Services.Availability : "Available";
 
     // To Check Room Analytics 
-    const roomInUse = roomAnalytics.RoomInUse === 'True' ? 'Occupied' : 'Available';
+    //const roomInUse = roomAnalytics.RoomInUse === 'True' ? 'False' : 'Available';
+    const peoplePresence = roomAnalytics.PeoplePresence === 'Yes' ? 'No' : 'people are present';
     const peopleCount = roomAnalytics.PeopleCount ? roomAnalytics.PeopleCount.Current : 0;
     const ambientNoise = roomAnalytics.AmbientNoise && roomAnalytics.AmbientNoise.Level ? roomAnalytics.AmbientNoise.Level.A : 0;
     const soundLevel = roomAnalytics.Sound && roomAnalytics.Sound.Level ? roomAnalytics.Sound.Level.A : 0;
 
-    // To Check Bookings
-    const availabilityStatus = bookings.Availability ? bookings.Availability.Status : 'BookedUntil';
-    const availabilityTimeStamp = bookings.Availability ? bookings.Availability.TimeStamp :" ";
+    // To check Standby details
+    const standbyState = standby.State;
+
+    // To check System Unit details
+    const broadcastName = systemUnit.BroadcastName;
+    const productId = systemUnit.ProductId;
+    const productType = systemUnit.ProductType;
+    const hardwareDram = systemUnit.Hardware.DRAM;
+    const hardwareHasWifi = systemUnit.Hardware.HasWifi;
+    const softwareDisplayName = systemUnit.Software.DisplayName;
+    const softwareVersion = systemUnit.Software.Version;
+    const softwareReleaseDate = systemUnit.Software.ReleaseDate;
+
+    // To check Video Details
+    
+
+    // To Check WebRTC Provider Details
+    const webRTCProvider = webRTCS.Provider;
+    const googleMeet = webRTCProvider.GoogleMeet;
+    const msTeams = webRTCProvider.MicrosoftTeams;
 
     console.log('Room status:', parsedData);
     return {
-      roomStatus: roomInUse,
+      roomStatus: availabilityStatus,
+      peoplePresence: peoplePresence,
       peopleCount: peopleCount,
       availabilityStatus: availabilityStatus,
       availabilityTimeStamp: availabilityTimeStamp,
       ambientNoise: ambientNoise,
       soundLevel: soundLevel,
+      standbyState: standbyState,
+      broadcastName: broadcastName,
+      productId: productId,
+      productType: productType,
+      hardwareDram: hardwareDram,
+      hardwareHasWifi: hardwareHasWifi,
+      softwareDisplayName: softwareDisplayName,
+      softwareVersion: softwareVersion,
+      softwareReleaseDate: softwareReleaseDate,
+      googleMeet: googleMeet,
+      msTeams: msTeams,
+      services: services,
+      diagnosticsMessages: diagnosticsMessages,
     };
   } catch (error) {
     console.error("Error fetching room status:", error);
@@ -139,13 +229,30 @@ async function sendCommandToRoomKit() {
   }
 }
 
-frameworkInstance.on('spawn', (bot, id, addedBy) => {
+frameworkInstance.on('spawn', (bot, addedBy) => {
   if (!addedBy) {
     // The bot was added to a space without a specific user doing so (like in a group space)
     console.log('Bot was added to a space');
     bot.say('markdown', commandList).catch((e) => console.error(`Error in spawn handler: ${e.message}`));
   }
 });
+
+// Webex bot hears "check diagnostics" command
+frameworkInstance.hears(
+  "check diagnostics",
+  async (bot) => {
+    console.log("Diagnostics check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+      const responseMessage = `**Diagnostics Messages**:\n\n${state.diagnosticsMessages.join('\n\n')}`;
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check the diagnostics due to an error.");
+    }
+  },
+  "**check diagnostics**: (checks the diagnostics of the Room Kit Mini)",
+  0
+);
 
 // Webex bot hears "check room status" command
 frameworkInstance.hears(
@@ -156,15 +263,14 @@ frameworkInstance.hears(
       const state = await sendCommandToRoomKit();
       let responseMessage = '';
 
-      if (state.roomStatus === 'Occupied') {
+      if (state.roomStatus === "BookedUntil") {
         responseMessage = 'The room is not available.';
-      } else {
+      }else{
         responseMessage = 'The room is available.';
         if (state.peopleCount > 0) {
-          responseMessage += ` However, there are ${state.peopleCount} people in the room.`;
+          responseMessage += ` However, there are people present in the room.`;
         }
-      }
-      await bot.say("markdown", responseMessage);
+      }await bot.say("markdown", responseMessage);
     } catch (error) {
       await bot.say("markdown", "Sorry, I couldn't check the room status due to an error.");
     }
@@ -199,14 +305,32 @@ frameworkInstance.hears(
       const state = await sendCommandToRoomKit();
 
       let responseMessage = '';
-      if (state.availabilityStatus === "BookedUntil") {
-        // If the room is booked, show the timestamp until when it is booked
-        const bookingEndTime = new Date(state.availabilityTimeStamp).toLocaleString();
-        responseMessage = `The room is booked until ${bookingEndTime}.`;
-      } else {
-        // If the room is not booked, indicate it's free
-        responseMessage = `The room is currently free ${formattedDate}.`;
-      }await bot.say("markdown", responseMessage);
+      const date = new Date(state.availabilityTimeStamp);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      const seconds = date.getSeconds().toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0'); //adding 1 because months are zero-indexed
+      const year = date.getFullYear();
+      const bookingEndTime=`${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+      // if (state.availabilityStatus === "BookedUntil") {
+      //   // If the room is booked, show the timestamp until when it is booked
+      //   const bookingEndTime = new Date(state.availabilityTimeStamp).toLocaleString();
+      //   responseMessage = `The room is booked until ${bookingEndTime}.`;
+      // } else {
+      //   // If the room is not booked, indicate it's free
+      //   responseMessage = `The room is currently free ${formattedDate}.`;
+      // }
+      if (state.availabilityStatus === "BookedUntil"){
+          responseMessage=`The room is booked until ${bookingEndTime}.`;
+      }else if(state.availabilityStatus === "FreeUntil"){
+          responseMessage=`The room is free now but there is a booking from ${bookingEndTime}.`;
+      }else if(state.availabilityStatus === "Free"){
+          responseMessage=`The room is free for the entire day for ${formattedDate}.`;
+      }else{
+          responseMessage='ERROR 404.';
+      }
+      await bot.say("markdown", responseMessage);
     } catch (error) {
       await bot.say("markdown", "Sorry, I couldn't check the bookings due to an error.");
     }
@@ -214,6 +338,34 @@ frameworkInstance.hears(
   "**check bookings**: (checks the bookings for the room)",
   0
 );
+
+// // Webex bot hears "check network details"
+// frameworkInstance.hears(
+//   "check network details",
+//   async (bot) => {
+//     console.log("Network details check requested");
+//     try {
+//       const state = await sendCommandToRoomKit();
+//       const responseMessage = `Network Details:
+// - Active Interface: ${state.activeInterface}
+// - CDP Address: ${state.cdpAddress}
+// - DNS Server Address: ${state.dnsServerAddress.join(', ')}
+// - Ethernet MAC Address: ${state.ethernetMACAddress}
+// - Ethernet Speed: ${state.ethernetSpeed}
+// - IPv4 Address: ${state.ipV4Address}
+// - IPv6 Address: ${state.ipV6Address}
+// - WiFi SSID: ${state.wifiSSID}
+// - WiFi Speed: ${state.wifiSpeed}
+// - WiFi Status: ${state.wifiStatus}`;
+//       await bot.say("markdown", responseMessage);
+//     }
+//     catch (error) {
+//       await bot.say("markdown", "Sorry, I couldn't check the network details due to an error.");
+//     }
+//   },
+//   "**check network details**: (checks the network details)",
+//   0
+// );
 
 // Webex bot hears "check ambient noise and sound level in the room"
 frameworkInstance.hears(
@@ -231,6 +383,108 @@ frameworkInstance.hears(
   "**check noise and sound **: (checks the ambient noise and sound level in the room)",
   0
 );
+
+// Webex bot hears "check proximity services availability"
+frameworkInstance.hears(
+  "check proximity services",
+  async (bot) => {
+    console.log("Proximity services availability check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+      let responseMessage = '';
+
+      if(state.services === "Available"){
+        responseMessage = 'The proximity services are available.';
+      }else{
+        responseMessage = `Proximity services are ${state.services}.`;
+      }
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check the proximity services availability due to an error.");
+    }
+  },
+  "**check proximity services**: (checks the proximity services availability)",
+  0
+);
+
+// Webex bot hears "check standby state"
+frameworkInstance.hears(
+  "check standby state",
+  async (bot) => {
+    console.log("Standby state check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+      const responseMessage = `The standby state is ${state.standbyState}.`;
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check the standby state due to an error.");
+    }
+  },
+  "**check standby state**: (checks the standby state)",
+  0
+);
+
+// Webex bot hears "check system unit details"
+frameworkInstance.hears(
+  "check system unit details",
+  async (bot) => {
+    console.log("System unit details check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+      const responseMessage = `The system unit details are as follows:
+- Broadcast Name: ${state.broadcastName}
+- Product ID: ${state.productId}
+- Product Type: ${state.productType}
+- Hardware DRAM: ${state.hardwareDram} GB
+- Hardware Has Wifi: ${state.hardwareHasWifi}
+- Software Display Name: ${state.softwareDisplayName}
+- Software Version: ${state.softwareVersion}
+- Software Release Date: ${state.softwareReleaseDate}`;
+      await bot.say("markdown", responseMessage);
+    }
+    catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check the system unit details due to an error.");
+    }
+  },
+  "**check system unit details**: (checks the system unit details)",
+  0
+);
+
+// Webex bot hears "check whether Google Meet is available or not"
+frameworkInstance.hears(
+  "check google meet",
+  async (bot) => {
+    console.log("Google Meet check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+      const responseMessage = `Google Meet is ${state.googleMeet ? 'available' : 'not available'}.`;
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check whether Google Meet is available or not due to an error.");
+    }
+  },
+  "**check google meet**: (checks whether Google Meet is available or not)",
+  0
+);
+
+// Webex bot hears "check whether Microsoft Teams is available or not"
+frameworkInstance.hears(
+  "check microsoft teams",
+  async (bot) => {
+    console.log("Microsoft Teams check requested");
+    try {
+      const state = await sendCommandToRoomKit();
+      const responseMessage = `Microsoft Teams is ${state.msTeams ? 'available' : 'not available'}.`;
+      await bot.say("markdown", responseMessage);
+    } catch (error) {
+      await bot.say("markdown", "Sorry, I couldn't check whether Microsoft Teams is available or not due to an error.");
+    }
+  },
+  "**check microsoft teams**: (checks whether Microsoft Teams is available or not)",
+  0
+);
+
+
 frameworkInstance.hears(
   "framework",
   (bot) => {
@@ -435,12 +689,13 @@ frameworkInstance.hears(
     console.log(`catch-all handler fired for user input: ${trigger.text}`);
     bot
       .say(`Sorry, I don't know how to respond to "${trigger.text}"`)
-      .then(() => bot.say("markdown", framework.showHelp()))
+      .then(() => bot.say("markdown", commandList))
       .catch((e) =>
         console.error(`Problem in the unexpected command handler: ${e.message}`)
       );
   },
-  99999
+  "**catch-all**: (handles unexpected inputs)",
+  100
 );
 
 // Server config & housekeeping
