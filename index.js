@@ -200,7 +200,7 @@ async function sendCommandToRoomKit() {
     const googleMeet = webRTCProvider.GoogleMeet;
     const msTeams = webRTCProvider.MicrosoftTeams;
 
-    console.log('Room status:', parsedData);
+    console.log('Room Status:', parsedData);
     return {
       roomStatus: availabilityStatus,
       peoplePresence: peoplePresence,
